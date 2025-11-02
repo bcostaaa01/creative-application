@@ -1,37 +1,46 @@
 import { useEffect, useState } from "react";
 
-export function useTypingEffect(commands: string[], typingSpeed = 40, lineDelay = 800) {
+export function useTypingEffect(
+  initialCommands: string[] = [], 
+  typingSpeed = 40, 
+  lineDelay = 800
+) {
   const [lines, setLines] = useState<string[]>([]);
   const [currentLine, setCurrentLine] = useState("");
+  const [queue, setQueue] = useState<string[]>([...initialCommands]);
+
+  const [inputEnabled, setInputEnabled] = useState(initialCommands.length === 0);
 
   useEffect(() => {
-    let lineIndex = 0;
-    let charIndex = 0;
-    let typingInterval: ReturnType<typeof setInterval>;
+    if (queue.length === 0) {
+      setInputEnabled(true);
+      return;
+    }
 
-    const typeNextChar = () => {
-      const currentCommand = commands[lineIndex];
-      if (charIndex < currentCommand.length) {
-        setCurrentLine(currentCommand.slice(0, charIndex + 1));
+    let charIndex = 0;
+    const command = queue[0];
+
+    const interval = setInterval(() => {
+      if (charIndex < command.length) {
+        setCurrentLine(command.slice(0, charIndex + 1));
         charIndex++;
       } else {
-        clearInterval(typingInterval);
-        setLines(prev => [...prev, currentCommand]);
+        clearInterval(interval);
+        setLines((prev) => [...prev, command]);
         setCurrentLine("");
-        lineIndex++;
-        charIndex = 0;
-
-        if (lineIndex < commands.length) {
-          setTimeout(() => {
-            typingInterval = setInterval(typeNextChar, typingSpeed);
-          }, lineDelay);
-        }
+        setTimeout(() => {
+          setQueue((prev) => prev.slice(1));
+        }, lineDelay);
       }
-    };
+    }, typingSpeed);
 
-    typingInterval = setInterval(typeNextChar, typingSpeed);
-    return () => clearInterval(typingInterval);
-  }, [commands, typingSpeed, lineDelay]);
+    return () => clearInterval(interval);
+  }, [queue, typingSpeed, lineDelay]);
 
-  return { lines, currentLine };
+  const handleCommand = (command: string) => {
+    setLines((prev) => [...prev, `$ ${command}`]);
+    setQueue((prev) => [...prev, `You entered: ${command}`]);
+  };
+
+  return { lines, currentLine, handleCommand, inputEnabled };
 }
