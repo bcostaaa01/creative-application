@@ -8,5 +8,4 @@ export const commands = [
   "I have great fun coding and collaborating with other passionate people, so I have a good feeling I would be happy in your team. :)",
   "$ askthequestion",
   "Would you like to have a conversation with me? 🚀",
-  "$ exit",
 ];
