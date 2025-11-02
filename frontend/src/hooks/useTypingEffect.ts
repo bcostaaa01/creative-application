@@ -38,8 +38,12 @@ export function useTypingEffect(
   }, [queue, typingSpeed, lineDelay]);
 
   const handleCommand = (command: string) => {
-    setLines((prev) => [...prev, `$ ${command}`]);
-    setQueue((prev) => [...prev, `You entered: ${command}`]);
+    setLines(() => [`$ ${command}`]);
+    if (command.includes("yes")) {
+        setQueue(() => [`Awesome!🚀🤩Please feel free to reach out to me directly - I will be very excited to hear from you!`]);
+    } else {
+        setQueue(() => [`Enter a valid command to procceed.`])
+    }
   };
 
   return { lines, currentLine, handleCommand, inputEnabled };
